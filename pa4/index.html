@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 
 <head>
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>ArgReality</title>
+    <title>Three.js AR lab4, Kolesnyk Bohdan TI-71</title>
     <style>
         body {
             margin: 0;
@@ -34,28 +33,15 @@
 </head>
 
 <body>
-
-    <div class="sliderwidget">
-        <div class="slider">
-            <input type="range" min="0.01" max="0.1" value="0" step="0.005" id="separationControlSlider">
-        </div>
-    </div>
-
     <script>
 
-
-        var scene, camera, renderer, mesh1, mesh2;
-
-        var sourse, context, marker;
+        let scene, camera, renderer, source, context, marker;
 
         const numberOfSlicesAndStacks = 30;
-        const R = 4, // In book it is said to use R = 2, but here R is 4 to render slightly bigger knot
+        const R = 2, // In book it is said to use R = 2, but here R is 4 to render slightly bigger knot
             a = 0.5; // a is for the width of knot
 
-        var group = new THREE.Group();
-
-        initialize();
-        animate();
+            let group = new THREE.Group();
 
         function initialize() {
             scene = new THREE.Scene();
@@ -70,26 +56,28 @@
                 antialias: true,
                 alpha: true
             });
+
             renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-            renderer.setSize(1920, 1080);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            
             renderer.domElement.style.position = 'absolute'
             renderer.domElement.style.top = '0px'
             renderer.domElement.style.left = '0px'
             document.body.appendChild(renderer.domElement);
 
-            sourse = new THREEx.ArToolkitSource({
+            source = new THREEx.ArToolkitSource({
                 sourceType: 'webcam',
             });
 
             function onResize() {
-                sourse.onResize()
-                sourse.copySizeTo(renderer.domElement)
+                source.onResize()
+                source.copySizeTo(renderer.domElement)
                 if (context.arController !== null) {
-                    sourse.copySizeTo(context.arController.canvas)
+                    source.copySizeTo(context.arController.canvas)
                 }
             }
 
-            sourse.init(function onReady() {
+            source.init(function onReady() {
                 onResize()
             });
 
@@ -111,15 +99,15 @@
 
             marker = new THREE.Group();
             scene.add(marker);
-            let markerControls1 = new THREEx.ArMarkerControls(context, marker, {
+            let markerControls = new THREEx.ArMarkerControls(context, marker, {
                 type: 'pattern', patternUrl: "pattern-str.patt",
             })
 
 
-            var generateGeometryForCloverKnotPoint = function (param = true) {
+            let generateGeometryForCloverKnotPoint = function (param = true) {
                 return function (u1, v1, vector3) {
-                    var u = u1 * Math.PI * 12;
-                    var v = v1 * Math.PI * 2;
+                    let u = u1 * Math.PI * 12;
+                    let v = v1 * Math.PI * 2;
 
                     vector3.x = (R + a * Math.cos(u / 2)) * Math.cos(u / 3) + a * Math.cos(u / 3) * Math.cos(v - Math.PI);
                     vector3.y = (R + a * Math.cos(u / 2)) * Math.sin(u / 3) + a * Math.sin(u / 3) * Math.cos(v - Math.PI);
@@ -127,35 +115,37 @@
                 };
             };
 
-            var group = new THREE.Group();
+            let group = new THREE.Group();
 
             // Generate points for whole figure in function range from 0 to 1
             for (const param of [0, 1]) {
-                var parametricGeometry = new THREE.ParametricGeometry(generateGeometryForCloverKnotPoint(param), numberOfSlicesAndStacks, numberOfSlicesAndStacks);
+                let parametricGeometry = new THREE.ParametricGeometry(generateGeometryForCloverKnotPoint(param), numberOfSlicesAndStacks, numberOfSlicesAndStacks);
 
-                var wireframeGeometry = new THREE.WireframeGeometry(parametricGeometry);
+                let wireframeGeometry = new THREE.WireframeGeometry(parametricGeometry);
 
-                var lineBasicMaterial = new THREE.LineBasicMaterial({
+                let lineBasicMaterial = new THREE.LineBasicMaterial({
                     color: new THREE.Color('green')
                 });
 
-                var lineSegments = new THREE.LineSegments(wireframeGeometry, lineBasicMaterial);
+                let lineSegments = new THREE.LineSegments(wireframeGeometry, lineBasicMaterial);
 
                 group.add(lineSegments);
             }
 
             marker.add(group);
-            //marker.add( mesh2 );
 
         }
         function animate() {
             requestAnimationFrame(animate);
-            //group.rotation.x += 0.01;
-            //group.rotation.y += 0.01;
-            if (sourse.ready !== false)
-                context.update(sourse.domElement);
+            group.rotation.x += 0.02;
+            group.rotation.y += 0.02;
+            if (source.ready !== false)
+                context.update(source.domElement);
             renderer.render(scene, camera);
         }
+
+        initialize();
+        animate();
 
     </script>
 </body>
