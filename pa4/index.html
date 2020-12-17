@@ -137,8 +137,6 @@
         }
         function animate() {
             requestAnimationFrame(animate);
-            group.rotation.x += 0.02;
-            group.rotation.y += 0.02;
             if (source.ready !== false)
                 context.update(source.domElement);
             renderer.render(scene, camera);
