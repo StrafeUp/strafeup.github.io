@@ -58,7 +58,7 @@
             });
 
             renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(1920, 1080);
             
             renderer.domElement.style.position = 'absolute'
             renderer.domElement.style.top = '0px'
@@ -120,9 +120,9 @@
             // Generate points for whole figure in function range from 0 to 1
             for (const param of [0, 1]) {
                 let parametricGeometry = new THREE.ParametricGeometry(generateGeometryForCloverKnotPoint(param), numberOfSlicesAndStacks, numberOfSlicesAndStacks);
-
+                parametricGeometry.scale(0.2, 0.2, 0.2);
                 let wireframeGeometry = new THREE.WireframeGeometry(parametricGeometry);
-
+            
                 let lineBasicMaterial = new THREE.LineBasicMaterial({
                     color: new THREE.Color('green')
                 });
